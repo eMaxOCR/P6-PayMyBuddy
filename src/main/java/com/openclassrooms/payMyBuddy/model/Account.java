@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,13 +21,15 @@ public class Account {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "accountId")
-	private int accountId;
-	
-	@Column(name = "userId")
-	private int accountUserId;
+	@Column(name = "id")
+	private int id;
 	
 	@Column(name = "balance")
 	private int balance;
+		
+	//Link USER
+	@OneToOne //One ACCOUNT for one USER.
+	@JoinColumn(name = "userId", referencedColumnName = "id")
+	private User user;
 
 }

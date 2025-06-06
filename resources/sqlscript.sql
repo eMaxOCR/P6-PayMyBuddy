@@ -18,11 +18,11 @@ USE `paymybuddy` ;
 -- Table `paymybuddy`.`User`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `paymybuddy`.`User` (
-  `userId` INT NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NULL,
   `email` VARCHAR(45) NULL,
   `password` VARCHAR(45) NULL,
-  PRIMARY KEY (`userId`),
+  PRIMARY KEY (`id`),
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
@@ -33,22 +33,22 @@ COMMENT = 'Regroupe toutes les information d\'un utilisateur.';
 -- Table `paymybuddy`.`Transaction`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `paymybuddy`.`Transaction` (
-  `transactionId` INT NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `senderId` INT NOT NULL,
   `receiverId` INT NOT NULL,
   `description` VARCHAR(45) NULL,
   `amount` DOUBLE NULL,
-  PRIMARY KEY (`transactionId`),
+  PRIMARY KEY (`id`),
   INDEX `senderId [FK]_idx` (`senderId` ASC) VISIBLE,
   INDEX `recieverId [FK]_idx` (`receiverId` ASC) VISIBLE,
   CONSTRAINT `senderId [FK]`
     FOREIGN KEY (`senderId`)
-    REFERENCES `paymybuddy`.`User` (`userId`)
+    REFERENCES `paymybuddy`.`User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `recieverId [FK]`
     FOREIGN KEY (`receiverId`)
-    REFERENCES `paymybuddy`.`User` (`userId`)
+    REFERENCES `paymybuddy`.`User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -64,12 +64,12 @@ CREATE TABLE IF NOT EXISTS `paymybuddy`.`Contact` (
   INDEX `contactUser [FK]_idx` (`contactUserId` ASC) VISIBLE,
   CONSTRAINT `userId [FK]`
     FOREIGN KEY (`userId`)
-    REFERENCES `paymybuddy`.`User` (`userId`)
+    REFERENCES `paymybuddy`.`User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `contactUser [FK]`
     FOREIGN KEY (`contactUserId`)
-    REFERENCES `paymybuddy`.`User` (`userId`)
+    REFERENCES `paymybuddy`.`User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -79,14 +79,14 @@ ENGINE = InnoDB;
 -- Table `paymybuddy`.`Account`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `paymybuddy`.`Account` (
-  `accountId` INT NOT NULL,
+  `id` INT NOT NULL,
   `userId` INT NOT NULL,
   `balance` VARCHAR(45) NULL,
-  PRIMARY KEY (`accountId`),
+  PRIMARY KEY (`id`),
   INDEX `userId [FK]_idx` (`userId` ASC) VISIBLE,
   CONSTRAINT `userId account [FK]`
     FOREIGN KEY (`userId`)
-    REFERENCES `paymybuddy`.`User` (`userId`)
+    REFERENCES `paymybuddy`.`User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

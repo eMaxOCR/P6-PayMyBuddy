@@ -8,8 +8,13 @@ public class PayMyBuddyApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PayMyBuddyApplication.class, args);
+		System.out.println("Hello !");
+	}
+	
+	//@Override
+	public void run(String... args) throws Exception {
+		System.out.println("Hello !");
 		
-		System.out.println("Hello world !");
 	}
 
 }
