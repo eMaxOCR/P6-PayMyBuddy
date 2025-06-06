@@ -29,7 +29,7 @@ public class Account {
 		
 	//Link USER
 	@OneToOne //One ACCOUNT for one USER.
-	@JoinColumn(name = "userId", referencedColumnName = "id")
+	@JoinColumn(name = "id", referencedColumnName = "id")
 	private User user;
 
 }

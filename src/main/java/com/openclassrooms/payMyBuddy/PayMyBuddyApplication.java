@@ -13,7 +13,6 @@ public class PayMyBuddyApplication {
 	
 	//@Override
 	public void run(String... args) throws Exception {
-		System.out.println("Hello !");
 		
 	}
 

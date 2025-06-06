@@ -41,6 +41,9 @@ public class User {
 	@Column(name = "password")
 	private String password;
 	
+	@Column(name = "role")
+	private String role;
+	
 	//Link ACCOUNT
 	@OneToOne(									//One user for one account.
 				mappedBy = "user",				//Linked by ACCOUNT entity.
