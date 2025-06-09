@@ -9,10 +9,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration //Spring detect this class has configuration class.
@@ -22,24 +22,37 @@ public class SpringSecurityAuthApplication {
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
 	
-	@Bean
-	//Logging form
+	@Bean //TODO infos
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 		return http.authorizeHttpRequests(auth -> {
 			auth.requestMatchers("/admin").hasRole("ADMIN"); 	//Define admin and his role
 			auth.requestMatchers("/user").hasRole("USER");		//Define user and his role
 			auth.anyRequest().authenticated(); 					//for http"s".
-		}).formLogin(Customizer.withDefaults()).build(); 		//Create login form page.
+		}).formLogin(Customizer.withDefaults())
+				.oauth2Login(Customizer.withDefaults())		//Setup OAuth.
+				.build(); 										//Create login form page.
 	}
 	
-	@Bean
-	//For encrypt password
+	@Bean //For encrypt password
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 	
 	@Bean
-	//Manage authentification sources
+	public UserDetailsService users () {
+		UserDetails user = User.builder()
+			.username("user")
+			.password(passwordEncoder().encode ("user") )
+			.roles("USER").build ();
+		UserDetails admin = User.builder()
+			.username("admin")
+			.password(passwordEncoder().encode ("admin") )
+			.roles("USER", "ADMIN").build ();
+		return new InMemoryUserDetailsManager (user, admin);
+	}
+	
+	@Bean
+	//Manage authentication sources
 	public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder) throws Exception {
 	    AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
 	authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(bCryptPasswordEncoder);
