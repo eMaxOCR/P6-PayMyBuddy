@@ -29,15 +29,6 @@ public class LoginControllerTest {
 			.andExpect(status().isOk());
 	}
 	
-//	@Test //Check if authenticated //TODO add "static" ids in CustomUserDetailsService.
-//	public void userLoginTest() throws Exception {
-//		mockMvc.perform(formLogin("/login")
-//				.user("user")
-//				.password("user"))
-//				.andExpect(authenticated());
-//
-//	}
-	
 	@Test //Check with wrong password
 	public void userLoginFailedTest() throws Exception {
 		mockMvc.perform(formLogin("/login")

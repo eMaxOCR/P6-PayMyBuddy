@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        /* Style du header, comme sur vos autres pages */
+        header {
+            width: 100%;
+            padding: 10px 0;
+            background-color: transparent; /* Pas de fond */
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: black;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 16px;
+            margin-right: 15px;
+        }
+        nav a.logo {
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: auto; /* Pousse les autres éléments à droite */
+        }
+        nav button {
+            background: none;
+            border: none;
+            color: black;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .error-container {
+            text-align: center;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin-top: 50px; /* Espace après le header */
+        }
+        .error-container h1 {
+            color: #dc3545; /* Rouge pour le titre d'erreur */
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .error-container h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .error-container p {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+        .error-container a.home-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        .error-container a.home-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="error-container">
+        <h1>Erreur !</h1>
+        <h2 th:text="${status} ? ${status} + ' - ' + ${error} : 'Une erreur inattendue est survenue.'">Une erreur inattendue est survenue.</h2>
+        <p th:text="${message} ?: 'Nous sommes désolés, quelque chose s\'est mal passé. Veuillez réessayer ou contacter le support si le problème persiste.'">
+            Nous sommes désolés, quelque chose s'est mal passé. Veuillez réessayer ou contacter le support si le problème persiste.
+        </p>
+        <a href="/" class="home-button">Retour à l'accueil</a>
+    </div>
+
+</body>
+</html>

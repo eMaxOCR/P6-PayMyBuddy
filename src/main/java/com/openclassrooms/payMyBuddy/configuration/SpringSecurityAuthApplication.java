@@ -27,9 +27,22 @@ public class SpringSecurityAuthApplication {
 		return http.authorizeHttpRequests(auth -> {
 			auth.requestMatchers("/admin").hasRole("ADMIN"); 	//Define admin and his role
 			auth.requestMatchers("/user").hasRole("USER");		//Define user and his role
+			auth.requestMatchers("/login", "/signup","/403","/css/**", "/js/**", "/images/**", "/error").permitAll();
 			auth.anyRequest().authenticated(); 					//for http"s".
-		}).formLogin(Customizer.withDefaults())
-				.oauth2Login(Customizer.withDefaults())		//Setup OAuth.
+		}).formLogin(form -> form
+					.loginPage("/login")			//Define custom web page connexion
+					.permitAll()					//All can see this page.
+					.defaultSuccessUrl("/relation", true)	//Go to main web page when logged.
+					.failureUrl("/login?error=true")//Go to error web page when error detected. 
+				)
+				.exceptionHandling(exceptions -> exceptions
+			            .accessDeniedPage("/403") // Forbidden access)
+			        )
+				.logout(logout -> logout
+			            .permitAll()
+			            .logoutSuccessUrl("/login?logout=true") // Redirige vers la page de connexion avec un paramètre de déconnexion après la déconnexion
+			        )
+				//.oauth2Login(Customizer.withDefaults())			//Setup OAuth.
 				.build(); 										//Create login form page.
 	}
 	

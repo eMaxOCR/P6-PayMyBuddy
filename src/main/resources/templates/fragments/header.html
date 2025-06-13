@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+
+    <header th:fragment="common-header" style="width: 100%; padding: 10px 0; background-color: transparent;">
+        <nav style="display: flex; justify-content: space-between; align-items: center; color: black; max-width: 1200px; margin: 0 auto; padding: 0 20px 100px;">
+            
+            <a href="/" style="color: black; text-decoration: none; font-size: 20px; font-weight: bold;">Pay My Buddy</a>
+            
+            <div>
+                <a href="/transfert" style="background: none; border: none; color: black; cursor: pointer; text-decoration: none; margin-right: 15px; font-size: 16px;">Transférer</a>
+                <a href="/profil" style="background: none; border: none; color: black; cursor: pointer; text-decoration: none; margin-right: 15px; font-size: 16px;">Profil</a>
+                <a href="/relation" style="background: none; border: none; color: black; cursor: pointer; text-decoration: none; margin-right: 15px; font-size: 16px;">Ajouter Relation</a>
+                
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" style="background: none; border: none; color: black; cursor: pointer; font-size: 16px;">Se déconnecter</button>
+                </form>
+            </div>
+        </nav>
+    </header>
+
+</body>
+</html>

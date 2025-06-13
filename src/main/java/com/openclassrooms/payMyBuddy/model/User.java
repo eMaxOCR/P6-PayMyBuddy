@@ -30,12 +30,12 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
-	private int id;
+	private Integer id;
 	
 	@Column(name = "username")
 	private String username;
 	
-	@Column(name = "email")
+	@Column(name = "email", unique = true)
 	private String email;
 	
 	@Column(name = "password")
@@ -62,7 +62,7 @@ public class User {
 	
 	
 	//Link CONTACT
-	@ManyToMany(							//USER can have many CONTACT, and CONTACT can have many USERS.
+	@OneToMany(								//USER can have many CONTACT, and CONTACT can have one USERS.
 			fetch = FetchType.LAZY,			//When category is searched, it didn't take products with it. (Best performance)
 			cascade = {
 					CascadeType.PERSIST,
