@@ -1,5 +1,6 @@
 package com.openclassrooms.payMyBuddy.service;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -44,35 +45,21 @@ public class UserService {
 	public Optional<User> getByEmailAddress(String email) {
 		return userRepository.findByEmail(email);
 	}
+
 	
 	/**
-	 * Find current user
+	 * Get current user
 	 * */
-	public User findCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return null; // Pas d'utilisateur connecté ou authentification anonyme/non complète
+	public User getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new IllegalStateException("Aucun utilisateur actuellement connecté.");
         }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof UserDetails) {
-            // Si le principal est une instance de UserDetails (ce qui est généralement le cas avec Spring Security)
-            String email = ((UserDetails) principal).getUsername(); // Ou getEmail() si votre UserDetails utilise l'email comme nom d'utilisateur
-
-            // On récupère l'utilisateur depuis la base de données via son email (ou username)
-            Optional<User> userOptional = getByEmailAddress(email); // Assurez-vous d'avoir une méthode findByEmail dans votre UserRepository
-
-            return userOptional.orElse(null); // Retourne l'utilisateur s'il est trouvé, sinon null
-        } else if (principal instanceof String) {
-            // Dans certains cas (par exemple, authentification anonyme), le principal peut être une String
-            // Vous pouvez gérer ce cas si nécessaire, mais souvent on ne le traite pas comme un "vrai" utilisateur loggé
-            return null;
-        }
-
-        return null;
-    }
+		 String userEmail = authentication.getName();
+	        return userRepository.findByEmail(userEmail)
+	                .orElseThrow(() -> new IllegalStateException("Utilisateur non trouvé dans la base de données pour l'email: " + userEmail));
+	    
+	}
 	
 	/**
 	 * Add user into database.
@@ -83,11 +70,54 @@ public class UserService {
 	}
 	
 	/**
-	 * Add relation into database.
+	 * Add relation/contact into database.
 	 * @return User
 	 * */
-	public User addContact(User user) {
-		return userRepository.;
+	public Boolean addContactByEmail(String mail) {
+		User currentUser = getCurrentUser();
+		if (currentUser == null) {
+		    throw new IllegalStateException("Aucun utilisateur actuellement connecté.");
+		}
+		
+		Optional<User> contactToAdd = getByEmailAddress(mail);	//Searching for user to add by he's email address.
+	 	User contact = contactToAdd.get();
+	    if (currentUser.getEmail().equals(contact.getEmail())) {
+	        throw new IllegalArgumentException("Un utilisateur ne peut pas s'ajouter lui-même.");
+	    }
+	    
+	    if (currentUser.addContact(contactToAdd)) {
+	        userRepository.save(currentUser);
+	        return true;
+	    }
+	    
+	    return false;
+
+	}
+	
+	/**
+	 * Update current profile
+	 * */
+	@Transactional
+	public User updateProfile(User user) {
+		User currentUser = getCurrentUser();
+		
+		String userName = user.getUsername();
+		if(userName != null) {
+			currentUser.setUsername(userName);
+		}
+		
+		String email = user.getEmail();
+		if(email != null) {
+			currentUser.setEmail(email);
+		}
+		
+		String passeword = user.getPassword();
+		if(!passeword.isBlank()) {
+			currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
+		}
+				
+		return userRepository.save(currentUser);
+		
 	}
 	
 	/**
@@ -119,7 +149,7 @@ public class UserService {
 	 * @return userId
 	 * */
 	@Transactional
-	public User registerWithUser(User user) {	
+	public User register(User user) {	
 		User newUser = new User();
 		newUser=user;
 		newUser.setRole("USER");

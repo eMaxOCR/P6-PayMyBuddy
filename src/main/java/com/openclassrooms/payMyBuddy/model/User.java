@@ -2,12 +2,12 @@ package com.openclassrooms.payMyBuddy.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.annotations.DynamicUpdate;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -62,20 +62,28 @@ public class User {
 	
 	
 	//Link CONTACT
-	@OneToMany(								//USER can have many CONTACT, and CONTACT can have one USERS.
-			fetch = FetchType.LAZY,			//When category is searched, it didn't take products with it. (Best performance)
-			cascade = {
-					CascadeType.PERSIST,
-					CascadeType.MERGE,
-					}
-			)
+	@ManyToMany
 	@JoinTable(		
-			name = "contact",										//Joint Table's name
-			joinColumns = @JoinColumn(name = "contactUserId"),		//Foreignkey from joint table.
-			inverseJoinColumns = @JoinColumn(name = "userId")		//Foreignkey from joint table of the second entity.
+			name = "contact",											//Joint Table's name
+			joinColumns = @JoinColumn(name = "userId"),					//Foreignkey from joint table.
+			inverseJoinColumns = @JoinColumn(name = "contactUserId")	//Foreignkey from joint table of the second entity.
 		
 			)
-	private List<User> contact = new ArrayList<>();
+	private List<User> contacts = new ArrayList<>();
+	
+	/**
+	 * Add USER into CONTACT
+	 * @param USER
+	 * */
+	public Boolean addContact(Optional<User> contactOptional) {
+		if(contactOptional.isPresent()) {				//Check if already exist
+			User contactToAdd = contactOptional.get();	//Convert Optional<User> to User.
+			contacts.add(contactToAdd);					//Add USER into contact.
+			return true;
+		}else {
+			return false;
+		}
+	}
 	
 	
 }

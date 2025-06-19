@@ -5,12 +5,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.openclassrooms.payMyBuddy.service.TransactionService;
 import com.openclassrooms.payMyBuddy.service.UserService;
 import org.springframework.ui.Model;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import com.openclassrooms.payMyBuddy.model.Transaction;
 import com.openclassrooms.payMyBuddy.model.User;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -25,9 +33,12 @@ public class LoginController {
 	
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private TransactionService transactionService;
+
 		
 	/**
-	 * Show sign-up page
+	 * Access to "sign-up" web page
 	 * */
 	@GetMapping("/signup")
 	public String signup() {
@@ -41,13 +52,13 @@ public class LoginController {
 	public String register(@ModelAttribute User user, RedirectAttributes redirectAttributes) {
 		//TODO afficher les message d'erreur. (ça ne marche pas)
 		try {
-            userService.registerWithUser(user); // Appelle la méthode d'enregistrement de notre service
+            userService.register(user); 
             redirectAttributes.addFlashAttribute("success", "Inscription réussie ! Vous pouvez maintenant vous connecter.");
-            return "redirect:/login"; // Redirige vers la page de connexion après succès
-        } catch (IllegalArgumentException e) { // Si l'email est déjà utilisé, ou autre erreur du service
-            redirectAttributes.addFlashAttribute("error", e.getMessage()); // Affiche le message d'erreur
-            return "redirect:/signup"; // Reste sur la page d'inscription avec le message d'erreur
-        } catch (Exception e) { // Gérer d'autres erreurs inattendues
+            return "redirect:/login";
+        } catch (IllegalArgumentException e) { 
+            redirectAttributes.addFlashAttribute("error", e.getMessage()); 
+            return "redirect:/signup"; 
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Une erreur inattendue est survenue lors de l'inscription.");
             return "redirect:/login";
         }
@@ -58,15 +69,44 @@ public class LoginController {
 		return "login";
 	}
 	
+	/**
+	 * Access to "Profile" web page
+	 * */
 	@GetMapping("/profil")
-	public String getProfil(Model model) {
-		User currentUser = userService.findCurrentUser();
-		model.addAttribute("user", currentUser);
+	public String getProfil(Model model, Principal principal) {
+		String userEmail = principal.getName();
+		Optional<User> userOptional = userService.getByEmailAddress(userEmail);
+		User user = userOptional.get();
+		model.addAttribute("user", user);
 		return "profil";
 	}
 	
 	/**
-	 * Go to relation web page
+	 * Update profile
+	 * */
+	@PostMapping("/profil")
+	public String updateProfil(@ModelAttribute("user") User newUserInformation, RedirectAttributes redirectAttributes) {
+		try {
+			String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+			Optional<User> existingUserOptional = userService.getByEmailAddress(userEmail);
+			User currentUser = existingUserOptional.get();
+			if (currentUser == null) {
+	            redirectAttributes.addFlashAttribute("error", "Utilisateur non trouvé.");
+	            return "redirect:/profil";
+	        }
+			
+			userService.updateProfile(newUserInformation);
+			
+			redirectAttributes.addFlashAttribute("success", "Profil mis à jour");
+			return "redirect:/login?logout=true";
+		}catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Une erreur inattendue est survenue lors de la mise à jour.");
+			return "redirect:/profil";
+		}
+	}
+	
+	/**
+	 * Access to "Relation" web page
 	 * */
 	@GetMapping("/relation")
 	public String relation() {
@@ -79,18 +119,51 @@ public class LoginController {
 	 * */
 	@PostMapping("/relation")
 	public String addRelation(@RequestParam("email") String email, RedirectAttributes redirectAttributes) {
-		if(userService.getByEmailAddress(email).isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Il n'existe pas d'utilisateur avec cette adresse.");
+		try {
+			if(userService.getByEmailAddress(email).isEmpty()) {
+				redirectAttributes.addFlashAttribute("error", "Il n'existe pas d'utilisateur avec cette adresse.");
+				return "redirect:/relation";
+			}
+
+			userService.addContactByEmail(email);
+			redirectAttributes.addFlashAttribute("success", "Relation ajoutée avec succès.");
+			return "redirect:/relation";
+			
+		}catch(IllegalArgumentException | ConstraintViolationException e) {
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			return "redirect:/relation";
+		}catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Une erreur inattendue est survenue." + e);
 			return "redirect:/relation";
 		}
-		//TODO add contact.
-		redirectAttributes.addFlashAttribute("success", "Relation ajoutée avec succès.");
-		return "redirect:/relation";
 	}
 	
+	
+	/**
+	 * Access to "Transfer" web page 
+	 * */
 	@GetMapping("/transfert")
-	public String transfert() {
+	public String showTransactions(Model model, Principal principal) {
+		model.addAttribute("transactionForm", new TransactionForm());
+		User currentUser = userService.getCurrentUser();
+		List<User> relations = currentUser.getContacts();
+		model.addAttribute("relations", relations);
 		return "transfert";
+	}
+	
+	/**
+	 * Create "Transfer"
+	 * */
+	@PostMapping("/transfert")
+	public String createTransaction(@ModelAttribute Transaction transaction, RedirectAttributes redirectAttributes) {
+			try {
+				transactionService.addTransaction(transaction);
+				return "redirect:/transfert"; 
+			}catch (Exception e) {
+				redirectAttributes.addFlashAttribute("error", e.getMessage());
+				return "redirect:/transfert"; 
+			}
+
 	}
 	
 	
@@ -98,32 +171,6 @@ public class LoginController {
 	public String showAccessDeniedPage() {
 		return "403";
 	}
-	
-	
-//	@GetMapping("/")
-//	public String getUserInfo(Principal user) {	//Principal = user
-//		StringBuffer userInfo = new StringBuffer();
-//		if(user instanceof UsernamePasswordAuthenticationToken) {
-//			userInfo.append(getUsernamePasswordLogInInfo(user));
-//		}else if(user instanceof OAuth2AuthenticationToken){
-//			userInfo.append(getOAuth2LoginInfo(user));
-//		}
-//		return userInfo.toString();
-//	}
-//	
-//	private StringBuffer getUsernamePasswordLogInInfo(Principal user) {
-//		StringBuffer usernameInfo = new StringBuffer();
-//		UsernamePasswordAuthenticationToken token = ((UsernamePasswordAuthenticationToken) user); //Take user name after verify that token is authenticated.
-//		if(token.isAuthenticated()){
-//			User u = (User) token.getPrincipal();
-//			//usernameInfo.append("Welcome" + u.getUsername());
-//		} else {
-//			usernameInfo.append("N/A");
-//		}
-//		
-//		return usernameInfo;
-//		
-//	}
 	
 	private StringBuffer getOAuth2LoginInfo(Principal user) {
 		StringBuffer protectedInfo = new StringBuffer();
@@ -135,9 +182,6 @@ public class LoginController {
 			  Map<String,Object> userAttributes = ((DefaultOAuth2User) authToken.getPrincipal()).getAttributes();
 			   
 			  String userToken = authClient.getAccessToken().getTokenValue();
-			  protectedInfo.append("Welcome, " + userAttributes.get("name")+"<br><br>");
-			  //protectedInfo.append("e-mail: " + userAttributes.get("email")+"<br><br>");
-			  //protectedInfo.append("Access Token: " + userToken+"<br><br>");	
 		  }
 		  else{
 			  protectedInfo.append("NA");
@@ -151,11 +195,5 @@ public class LoginController {
 	public LoginController(OAuth2AuthorizedClientService authorizedClientService) {
 		   this.authorizedClientService = authorizedClientService;
 		}
-	
-//	public LoginController(OAuth2AuthorizedClientService authorizedClientService, UserService userService) {
-//		this.authorizedClientService = authorizedClientService;
-//		this.userService = userService; // Initialisation du service
-//	}
-
 	
 }

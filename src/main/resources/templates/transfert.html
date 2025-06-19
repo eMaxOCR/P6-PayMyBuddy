@@ -21,41 +21,47 @@
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 80%; /* Pour donner plus d'espace au contenu */
-            max-width: 900px; /* Limite la largeur pour une meilleure lisibilité */
-            margin-top: 20px; /* Espace sous le header */
+            width: 80%;
+            max-width: 900px;
+            margin-top: 20px;
         }
         h1 {
             color: #333;
             margin-bottom: 20px;
         }
-        .payment-row {
+
+        .transaction-form-container { /* Nouveau conteneur flex pour la ligne du formulaire */
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap; /* Permet aux éléments de passer à la ligne si l'écran est petit */
+            flex-wrap: wrap; /* Permet aux éléments de passer à la ligne sur petits écrans */
+            justify-content: center; /* Centre les éléments dans la ligne */
+            align-items: flex-end; /* Aligne les éléments du bas (le bouton par ex) */
+            gap: 20px; /* Espace entre les champs */
             margin-bottom: 30px;
-            gap: 15px; /* Espace entre les éléments */
         }
+
         .form-group {
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Aligne le label à gauche */
-            min-width: 150px; /* Largeur minimale pour chaque groupe */
-            flex-grow: 1; /* Permet aux éléments de grandir pour occuper l'espace */
+            /* Retire align-items: flex-start pour une flexibilité accrue */
+            flex: 1; /* Permet au groupe de grandir et prendre de l'espace */
+            min-width: 150px; /* Largeur minimale pour les champs */
+            max-width: 250px; /* Pour éviter que les champs ne soient trop larges */
         }
+        /* --- FIN NOUVEAUX STYLES --- */
+
         .form-group label {
             margin-bottom: 5px;
             font-weight: bold;
             color: #555;
+            text-align: left; /* Assure que le label est aligné à gauche */
         }
         select, input[type="text"], input[type="number"] {
-            width: 100%; /* Prend toute la largeur du groupe */
+            width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 16px;
-            box-sizing: border-box; /* Inclut le padding dans la largeur */
+            box-sizing: border-box;
         }
         .amount-input {
             display: flex;
@@ -74,9 +80,8 @@
         }
         .amount-input input {
             text-align: center;
-            -moz-appearance: textfield; /* Cache les flèches sur Firefox */
+            -moz-appearance: textfield;
         }
-        /* Cache les flèches sur Chrome, Safari, Edge */
         .amount-input input::-webkit-outer-spin-button,
         .amount-input input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -84,7 +89,7 @@
         }
 
         button.pay-button {
-            background-color: #28a745; /* Vert pour le bouton payer */
+            background-color: #28a745;
             color: white;
             padding: 10px 20px;
             border: none;
@@ -92,7 +97,11 @@
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s ease;
-            white-space: nowrap; /* Empêche le bouton de passer à la ligne */
+            white-space: nowrap;
+            /* Permet au bouton de s'aligner avec les autres inputs */
+            height: fit-content; /* S'adapte à la hauteur du contenu */
+            align-self: flex-end; /* Aligne le bouton en bas de la ligne flex */
+            margin-bottom: 0; /* Pas de marge en bas */
         }
         button.pay-button:hover {
             background-color: #218838;
@@ -103,7 +112,7 @@
             margin-top: 40px;
             border-top: 1px solid #eee;
             padding-top: 30px;
-            text-align: left; /* Alignement du texte de la liste */
+            text-align: left;
         }
         .transactions-section h2 {
             color: #333;
@@ -133,23 +142,28 @@
             color: #007bff;
         }
         .transaction-item.debit .amount {
-            color: #dc3545; /* Rouge pour les débits */
+            color: #dc3545;
         }
         .transaction-item.credit .amount {
-            color: #28a745; /* Vert pour les crédits */
+            color: #28a745;
         }
 
         /* Styles responsives */
         @media (max-width: 768px) {
-            .payment-row {
+            .transaction-form-container {
                 flex-direction: column; /* Empile les éléments en colonne sur les petits écrans */
                 align-items: stretch; /* Étire les éléments pour remplir la largeur */
             }
             .form-group {
                 width: 100%;
+                max-width: none; /* Supprime la max-width sur les petits écrans */
             }
             .amount-input {
-                justify-content: center; /* Centre les boutons +/- sur mobile */
+                justify-content: center;
+            }
+            button.pay-button {
+                width: 100%; /* Le bouton prend toute la largeur */
+                align-self: center; /* Centre le bouton */
             }
         }
     </style>
@@ -160,32 +174,39 @@
     <div class="container">
         <h1>Faire un Virement</h1>
 
-        <div class="payment-row">
-            <div class="form-group">
-                <label for="relationSelect">Relation :</label>
-                <select id="relationSelect" name="relation">
-                    <option value="">Sélectionner une relation</option>
-                    <option value="ami1">Jean Dupont (ami1@example.com)</option>
-                    <option value="ami2">Marie Curie (marie.c@example.com)</option>
-                    <option value="ami3">Pierre Martin (pierre.m@example.com)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="descriptionInput">Description :</label>
-                <input type="text" id="descriptionInput" name="description" placeholder="Ex: Dîner restaurant">
-            </div>
-
-            <div class="form-group">
-                <label for="amountInput">Montant (€) :</label>
-                <div class="amount-input">
-                    <button type="button" onclick="changeAmount(-1)">-</button>
-                    <input type="number" id="amountInput" name="amount" value="0.00" step="0.01" min="0" readonly>
-                    <button type="button" onclick="changeAmount(1)">+</button>
+        <form method="post" th:action="@{/transactions}" th:object="${transactionForm}">
+            <div class="transaction-form-container">
+                <div class="form-group">
+                    <label for="relationSelect">Relation :</label>
+                    <select id="relationSelect" name="relationId" th:field="*{relationId}">
+                        <option value="">Sélectionner une relation</option>
+                        <option th:each="relation : ${relations}"
+                                th:value="${relation.id}"
+                                th:text="${relation.username} + ' (' + ${relation.email} + ')'"></option>
+                    </select>
                 </div>
+
+                <div class="form-group">
+                    <label for="descriptionInput">Description :</label>
+                    <input type="text" id="descriptionInput" name="description" th:field="*{description}" placeholder="Ex: Dîner restaurant">
+                </div>
+
+                <div class="form-group">
+                    <label for="amountInput">Montant (€) :</label>
+                    <div class="amount-input">
+                        <input type="number" id="amountInput" name="amount" value="0.00" step="0.01" min="0" th:field="*{amount}">
+                        </div>
+                </div>
+
+                <button type="submit" class="pay-button">Payer</button>
             </div>
-            
-            <button type="submit" class="pay-button">Payer</button>
+        </form>
+
+        <div th:if="${error}" class="alert alert-danger" style="color: red; margin-top: 15px;">
+            <p th:text="${error}"></p>
+        </div>
+        <div th:if="${success}" class="alert alert-success" style="color: green; margin-top: 15px;">
+            <p th:text="${success}"></p>
         </div>
 
         <div class="transactions-section">
@@ -203,21 +224,35 @@
                     <span>10/06/2025 - Dîner pizza avec Pierre</span>
                     <span class="amount">- 15.50 €</span>
                 </li>
-                </ul>
+            </ul>
         </div>
     </div>
 
     <script>
-        function changeAmount(delta) {
+        // Votre script JavaScript pour limiter les décimales
+        document.addEventListener('DOMContentLoaded', function() {
             const amountInput = document.getElementById('amountInput');
-            let currentAmount = parseFloat(amountInput.value);
-            let newAmount = currentAmount + delta;
 
-            if (newAmount < 0) {
-                newAmount = 0; // Ne pas descendre en dessous de 0
-            }
-            amountInput.value = newAmount.toFixed(2); // Garde deux décimales
-        }
+            // JavaScript pour limiter la saisie à 2 décimales
+            amountInput.addEventListener('input', function() {
+                let value = this.value;
+                const parts = value.split('.');
+
+                if (parts.length === 2 && parts[1].length > 2) {
+                    this.value = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+            });
+
+            window.changeAmount = function(delta) {
+                let currentAmount = parseFloat(amountInput.value);
+                let newAmount = currentAmount + delta;
+
+                if (newAmount < 0) {
+                    newAmount = 0;
+                }
+                amountInput.value = newAmount.toFixed(2);
+            };
+        });
     </script>
 </body>
 </html>

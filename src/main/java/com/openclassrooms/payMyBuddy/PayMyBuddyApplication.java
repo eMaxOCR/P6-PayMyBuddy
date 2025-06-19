@@ -26,11 +26,9 @@ public class PayMyBuddyApplication implements CommandLineRunner{
 	
 	@Override
 	public void run(String... args) throws Exception{
+		
 		System.out.println("Serveur Online !");
 		
-		//userService.register("coco01", "coco@hotmail.fr", "123Soleil");
-		//System.out.println(userService.getByEmailAddress("coco@hotmail.fr"));
-
 	}
 
 }

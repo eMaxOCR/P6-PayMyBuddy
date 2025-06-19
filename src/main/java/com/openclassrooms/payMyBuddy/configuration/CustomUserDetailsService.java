@@ -20,10 +20,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 	
 	@Override
 	//Request in DB to get user informations.
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		com.openclassrooms.payMyBuddy.model.User user = userRepository.findByUsername(username);	//Find user from DB
+	public UserDetails loadUserByUsername(String mail) throws UsernameNotFoundException {
+		com.openclassrooms.payMyBuddy.model.User user = userRepository.findByEmail(mail)
+				.orElseThrow(() -> new UsernameNotFoundException("Aucun utilisateur n'a été trouvé avec cette adresse mail:" + mail));	//Find user from DB
 		
-		return new User(user.getUsername(), user.getPassword(), getGrantedAuthorities(user.getRole()));
+		return new User(
+				user.getEmail(), 
+				user.getPassword(), 
+				getGrantedAuthorities(user.getRole())
+		);
 	}
 	
 	//TODO Create 
