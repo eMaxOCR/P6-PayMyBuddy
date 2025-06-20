@@ -25,21 +25,18 @@ public class Transaction {
 	@Column(name = "id")
 	private int id;
 	
-	@Column(name = "senderId")
-	private int senderId;
+	@ManyToOne //Many transaction for one user.
+	@JoinColumn(name = "senderId", referencedColumnName = "id")
+	private User sender;
 	
-	@Column(name = "receiverId")
-	private int receiverId;
+	@ManyToOne //Many transaction for one user.
+	@JoinColumn(name = "receiverId", referencedColumnName = "id")
+	private User receiver;
 	
 	@Column(name = "description")
 	private String description;
 	
 	@Column(name = "amount")
-	private int amount;
-	
-	//Link USER
-	@ManyToOne //Many TRANSACTIONS for one USER
-	@JoinColumn(name = "userId", referencedColumnName = "id")
-	private User user;
+	private Double amount; //TODO BigDecimal
 	
 }

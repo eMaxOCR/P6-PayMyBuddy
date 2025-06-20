@@ -28,8 +28,21 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 300px;
+            margin-top: 30px; /* Ajoute un espace entre le header et la boîte de profil */
+        }
+        
+        .account-box {
+            background-color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+            font-weight: bolder;
+            font-size: x-large;
             margin-top: 50px; /* Ajoute un espace entre le header et la boîte de profil */
         }
+        
         .profile-box h2 {
             margin-bottom: 20px;
             color: #333;
@@ -86,6 +99,11 @@
 <body>
 
     <div class="header-container" th:insert="~{fragments/header :: common-header}"></div> 
+    
+    <div class="account-box" th:object="${account}">
+    	<label th:text="${account.balance}">0</label>
+    	<label>€</label>
+    </div>
 
     <div class="profile-box">
         <div th:if="${param.success}" class="success">

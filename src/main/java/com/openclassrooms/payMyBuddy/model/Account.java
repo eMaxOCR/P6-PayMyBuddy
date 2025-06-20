@@ -22,14 +22,14 @@ public class Account {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
-	private int id;
+	private Integer id;
 	
 	@Column(name = "balance")
-	private int balance;
+	private Double balance;
 		
 	//Link USER
 	@OneToOne //One ACCOUNT for one USER.
-	@JoinColumn(name = "id", referencedColumnName = "id")
+	@JoinColumn(name = "userId", referencedColumnName = "id")
 	private User user;
 
 }

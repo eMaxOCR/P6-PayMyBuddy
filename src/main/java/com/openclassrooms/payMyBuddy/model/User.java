@@ -55,7 +55,7 @@ public class User {
 	
 	//Link TRANSACTION
 	@OneToMany(
-			mappedBy = "senderId",
+			mappedBy = "sender",
 			cascade = CascadeType.ALL
 			)
 	private List<Transaction> transactions = new ArrayList<>();
@@ -83,7 +83,6 @@ public class User {
 		}else {
 			return false;
 		}
-	}
-	
+	}	
 	
 }

@@ -172,17 +172,15 @@
     <div th:replace="~{fragments/header :: header}"></div>
 
     <div class="container">
-        <h1>Faire un Virement</h1>
-
-        <form method="post" th:action="@{/transactions}" th:object="${transactionForm}">
+        <form method="post" th:action="@{/transfert}" th:object="${transaction}">
             <div class="transaction-form-container">
                 <div class="form-group">
                     <label for="relationSelect">Relation :</label>
-                    <select id="relationSelect" name="relationId" th:field="*{relationId}">
-                        <option value="">Sélectionner une relation</option>
+                    <select id="relationSelect" name="receiver" th:field="*{receiver}" required>
+                        <option value=""></option>
                         <option th:each="relation : ${relations}"
                                 th:value="${relation.id}"
-                                th:text="${relation.username} + ' (' + ${relation.email} + ')'"></option>
+                                th:text="${relation.username} + ' (' + ${relation.email} + ')'" ></option>
                     </select>
                 </div>
 
@@ -195,7 +193,7 @@
                     <label for="amountInput">Montant (€) :</label>
                     <div class="amount-input">
                         <input type="number" id="amountInput" name="amount" value="0.00" step="0.01" min="0" th:field="*{amount}">
-                        </div>
+                    </div>
                 </div>
 
                 <button type="submit" class="pay-button">Payer</button>
@@ -210,49 +208,17 @@
         </div>
 
         <div class="transactions-section">
-            <h2>Mes Transactions</h2>
+            <h2>Transactions</h2>
             <ul class="transaction-list">
-                <li class="transaction-item debit">
-                    <span>13/06/2025 - Virement à Jean Dupont</span>
-                    <span class="amount">- 50.00 €</span>
-                </li>
-                <li class="transaction-item credit">
-                    <span>12/06/2025 - Reçu de Marie Curie</span>
-                    <span class="amount">+ 25.00 €</span>
-                </li>
-                <li class="transaction-item debit">
-                    <span>10/06/2025 - Dîner pizza avec Pierre</span>
-                    <span class="amount">- 15.50 €</span>
+                <li class="transaction-item debit"
+                	th:each=" transaction : ${transactionList}">
+                    <span th:text="${transaction.receiver.username == principal.name ? transaction.sender?.username : transaction.receiver?.username}"></span> 
+                    <span th:text="${transaction.description}"></span>
+                    <span th:text="${transaction.amount}" class="amount"></span>
                 </li>
             </ul>
         </div>
     </div>
 
-    <script>
-        // Votre script JavaScript pour limiter les décimales
-        document.addEventListener('DOMContentLoaded', function() {
-            const amountInput = document.getElementById('amountInput');
-
-            // JavaScript pour limiter la saisie à 2 décimales
-            amountInput.addEventListener('input', function() {
-                let value = this.value;
-                const parts = value.split('.');
-
-                if (parts.length === 2 && parts[1].length > 2) {
-                    this.value = parts[0] + '.' + parts[1].substring(0, 2);
-                }
-            });
-
-            window.changeAmount = function(delta) {
-                let currentAmount = parseFloat(amountInput.value);
-                let newAmount = currentAmount + delta;
-
-                if (newAmount < 0) {
-                    newAmount = 0;
-                }
-                amountInput.value = newAmount.toFixed(2);
-            };
-        });
-    </script>
 </body>
 </html>

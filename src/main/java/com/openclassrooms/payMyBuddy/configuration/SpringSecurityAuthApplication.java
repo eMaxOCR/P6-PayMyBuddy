@@ -30,13 +30,13 @@ public class SpringSecurityAuthApplication {
 			auth.requestMatchers("/login", "/signup","/403","/css/**", "/js/**", "/images/**", "/error").permitAll();
 			auth.anyRequest().authenticated(); 					//for http"s".
 		}).formLogin(form -> form
-					.loginPage("/login")			//Define custom web page connexion
-					.permitAll()					//All can see this page.
-					.defaultSuccessUrl("/relation", true)	//Go to main web page when logged.
-					.failureUrl("/login?error=true")//Go to error web page when error detected. 
+					.loginPage("/login")						//Define custom web page connexion
+					.permitAll()								//All can see this page.
+					.defaultSuccessUrl("/transfert", true)	//Go to main web page when logged.
+					.failureUrl("/login?error=true")			//Go to error web page when error detected. 
 				)
 				.exceptionHandling(exceptions -> exceptions
-			            .accessDeniedPage("/403") // Forbidden access)
+			            .accessDeniedPage("/403") 				// Forbidden access
 			        )
 				.logout(logout -> logout
 			            .permitAll()

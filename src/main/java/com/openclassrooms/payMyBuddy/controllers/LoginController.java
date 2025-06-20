@@ -8,6 +8,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.openclassrooms.payMyBuddy.service.TransactionService;
 import com.openclassrooms.payMyBuddy.service.UserService;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.ui.Model;
 import java.security.Principal;
 import java.util.List;
@@ -78,6 +81,7 @@ public class LoginController {
 		Optional<User> userOptional = userService.getByEmailAddress(userEmail);
 		User user = userOptional.get();
 		model.addAttribute("user", user);
+		model.addAttribute("account", user.getAccount());
 		return "profil";
 	}
 	
@@ -144,10 +148,12 @@ public class LoginController {
 	 * */
 	@GetMapping("/transfert")
 	public String showTransactions(Model model, Principal principal) {
-		model.addAttribute("transactionForm", new TransactionForm());
 		User currentUser = userService.getCurrentUser();
 		List<User> relations = currentUser.getContacts();
-		model.addAttribute("relations", relations);
+		model.addAttribute("relations", relations);				//All user's contacts
+		model.addAttribute("transaction", new Transaction());	//Transaction model
+		model.addAttribute("transactionList", currentUser.getTransactions());									//All transactions
+		model.addAttribute("principal", principal);
 		return "transfert";
 	}
 	
@@ -157,10 +163,15 @@ public class LoginController {
 	@PostMapping("/transfert")
 	public String createTransaction(@ModelAttribute Transaction transaction, RedirectAttributes redirectAttributes) {
 			try {
-				transactionService.addTransaction(transaction);
-				return "redirect:/transfert"; 
+				if(transactionService.addTransaction(transaction)) {
+					redirectAttributes.addFlashAttribute("success", "💸 Paiement effectué ! 💸");
+					return "redirect:/transfert"; 
+				}else {
+					redirectAttributes.addFlashAttribute("error", "Vous n'avez pas assez d'argent.😫");
+					return "redirect:/transfert"; 
+				}
 			}catch (Exception e) {
-				redirectAttributes.addFlashAttribute("error", e.getMessage());
+				redirectAttributes.addFlashAttribute("error", "Une erreur est survenue 😫" + e.getMessage());
 				return "redirect:/transfert"; 
 			}
 

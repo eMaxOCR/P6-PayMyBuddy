@@ -1,13 +1,13 @@
 package com.openclassrooms.payMyBuddy.service;
 
-import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.openclassrooms.payMyBuddy.model.Account;
 import com.openclassrooms.payMyBuddy.model.User;
 import com.openclassrooms.payMyBuddy.repository.UserRepository;
 
@@ -70,6 +70,14 @@ public class UserService {
 	}
 	
 	/**
+	 * save user into database.
+	 * @return User
+	 * */
+	public User save(User user) {
+		return userRepository.save(user);
+	}
+	
+	/**
 	 * Add relation/contact into database.
 	 * @return User
 	 * */
@@ -97,7 +105,6 @@ public class UserService {
 	/**
 	 * Update current profile
 	 * */
-	@Transactional
 	public User updateProfile(User user) {
 		User currentUser = getCurrentUser();
 		
@@ -115,7 +122,7 @@ public class UserService {
 		if(!passeword.isBlank()) {
 			currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
 		}
-				
+		
 		return userRepository.save(currentUser);
 		
 	}
@@ -132,11 +139,9 @@ public class UserService {
 	 * @param Username, Mail, Password 
 	 * @return userId
 	 * */
-	@Transactional
 	public Integer registerWithUsernameMailPassword(String username, String mail, String password) {
 		User newUser = new User();
 		newUser.setUsername(username);
-		//TODO check if mail already exist (SQL Request?)
 		newUser.setEmail(mail);
 		newUser.setRole("USER");
 		newUser.setPassword(passwordEncoder.encode(password));
@@ -154,7 +159,14 @@ public class UserService {
 		newUser=user;
 		newUser.setRole("USER");
 		newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-		return add(newUser);	
+		
+		Account newAccount = new Account();
+		newAccount.setUser(newUser);
+		newAccount.setBalance(0.0);
+		accountService.addAccount(newAccount);
+		
+		add(newUser);
+		return newUser;	
 	}
 	
 	
