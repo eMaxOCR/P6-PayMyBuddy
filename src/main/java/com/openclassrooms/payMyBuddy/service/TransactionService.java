@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.payMyBuddy.model.Account;
@@ -21,6 +22,9 @@ public class TransactionService {
 	private TransactionRepository transactionRepository;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	@Value("${transaction.fee.percentage}")
+	private BigDecimal FEEPOURCENT;
 
 	/**
 	 * Return all transaction.
@@ -50,28 +54,30 @@ public class TransactionService {
 	 * Add transaction into database.
 	 * @return transaction
 	 * */
-	@Transactional	//Commits & Roll back
+	@Transactional															//Commits & Roll back
 	public Boolean addTransaction(Transaction transaction) {
-		User currentUser = new User();
-		currentUser = userService.getCurrentUser();
-		Double userBalance = currentUser.getAccount().getBalance();		
-			
-		if(	transaction.getAmount() <= currentUser.getAccount().getBalance()) {								//Check current user account.
+		User currentUser = userService.getCurrentUser();					//Get current user who made the transaction
+		BigDecimal userBalance = currentUser.getAccount().getBalance();		//eg. 10
+		BigDecimal transactionAmount = transaction.getAmount();				//eg. 10
+		BigDecimal feeAmount =  transactionAmount.multiply(FEEPOURCENT);	//eg. 10 * 0.005 = 0.05€		
+		
+		if(	userBalance.compareTo(transactionAmount.add(feeAmount)) >= 0) {	//Check if current user account can handle transaction's amount with fee
 			transaction.setSender(currentUser);
 			
-			Account currentUserAccount = currentUser.getAccount();											//Get current user Account.
-			currentUserAccount.setBalance(userBalance - transaction.getAmount());							//Deduce transaction amount from current user.
-			userService.save(currentUser);																	//Save current user balance.
+			Account currentUserAccount = currentUser.getAccount();																			//Get current user Account.
+			currentUserAccount.setBalance(userBalance.subtract(transactionAmount.add(feeAmount)).setScale(2, RoundingMode.HALF_UP));		//Deduce transaction amount from current user.
+			userService.save(currentUser);																									//Save current user balance.
 			
-			User receiverUser = new User();																	//Setup receiver User.
-			receiverUser = transaction.getReceiver();
-			Account receiverUserAccount = receiverUser.getAccount();  										//Get receiver user account.
-			receiverUserAccount.setBalance(receiverUserAccount.getBalance() + transaction.getAmount());		//Add amout.
-			userService.save(receiverUser);																	//Save receiver User.
-			
-			transactionRepository.save(transaction);														//Save transaction.
-			
-			return true;
+			if(userService.getById(transaction.getReceiver().getId()).isPresent()) {														//Verify if user already exist to avoid hack
+				User receiverUser = transaction.getReceiver();																				//Setup receiver User.
+				Account receiverUserAccount = receiverUser.getAccount();  																	//Get receiver user account.
+				receiverUserAccount.setBalance(receiverUserAccount.getBalance().add(transactionAmount).setScale(2, RoundingMode.HALF_UP));	//Add amount by rounding
+				userService.save(receiverUser);																								//Save receiver User.
+				
+				transactionRepository.save(transaction);																					//Save transaction.
+				
+				return true;
+			}
 		}
 		
 		return false;			

@@ -1,6 +1,10 @@
 package com.openclassrooms.payMyBuddy.model;
 
+import java.math.BigDecimal;
+
 import org.hibernate.annotations.DynamicUpdate;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,10 +29,14 @@ public class Account {
 	private Integer id;
 	
 	@Column(name = "balance")
-	private Double balance;
+	private BigDecimal balance;
 		
 	//Link USER
-	@OneToOne //One ACCOUNT for one USER.
+	@OneToOne(								//One ACCOUNT for one USER.
+			cascade = CascadeType.ALL,		//All actions taken from product will affect comment. (For CRUD actions, and into linked objects (comments)
+			orphanRemoval = true			//If product deleted, comment will be deleted too.)
+			)
+	
 	@JoinColumn(name = "userId", referencedColumnName = "id")
 	private User user;
 

@@ -1,8 +1,6 @@
 package com.openclassrooms.payMyBuddy.repository;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -15,10 +13,10 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 	
 	
 	/**
-	 * Searching all transaction from User that has been receiver or sender.
+	 * Searching all transactions from User that has been receiver or sender.
 	 * @param username.
 	 * */
-    @Query("SELECT t FROM Transaction t WHERE t.sender = :user AND t.receiver = :user")
+    @Query("SELECT t FROM Transaction t WHERE t.sender = :user OR t.receiver = :user")
     public List<Transaction> findAllByUser(@Param("user") User user);
 	
 }

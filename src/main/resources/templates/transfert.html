@@ -29,6 +29,10 @@
             color: #333;
             margin-bottom: 20px;
         }
+        bold {
+            color: #333;
+            font-weight:bold;
+        }
 
         .transaction-form-container { /* Nouveau conteneur flex pour la ligne du formulaire */
             display: flex;
@@ -47,7 +51,6 @@
             min-width: 150px; /* Largeur minimale pour les champs */
             max-width: 250px; /* Pour éviter que les champs ne soient trop larges */
         }
-        /* --- FIN NOUVEAUX STYLES --- */
 
         .form-group label {
             margin-bottom: 5px;
@@ -80,7 +83,6 @@
         }
         .amount-input input {
             text-align: center;
-            -moz-appearance: textfield;
         }
         .amount-input input::-webkit-outer-spin-button,
         .amount-input input::-webkit-inner-spin-button {
@@ -117,15 +119,24 @@
         .transactions-section h2 {
             color: #333;
             margin-bottom: 20px;
-            text-align: center;
+            text-align: left;
         }
         .transaction-list {
             list-style: none;
             padding: 0;
         }
+        .transaction-item-info {
+            padding: 15px;
+            font-weight:bold;
+            font-size:large;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .transaction-item {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
+	        border-top: 1px solid #ddd;
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 5px;
@@ -148,24 +159,6 @@
             color: #28a745;
         }
 
-        /* Styles responsives */
-        @media (max-width: 768px) {
-            .transaction-form-container {
-                flex-direction: column; /* Empile les éléments en colonne sur les petits écrans */
-                align-items: stretch; /* Étire les éléments pour remplir la largeur */
-            }
-            .form-group {
-                width: 100%;
-                max-width: none; /* Supprime la max-width sur les petits écrans */
-            }
-            .amount-input {
-                justify-content: center;
-            }
-            button.pay-button {
-                width: 100%; /* Le bouton prend toute la largeur */
-                align-self: center; /* Centre le bouton */
-            }
-        }
     </style>
 </head>
 <body>
@@ -175,7 +168,6 @@
         <form method="post" th:action="@{/transfert}" th:object="${transaction}">
             <div class="transaction-form-container">
                 <div class="form-group">
-                    <label for="relationSelect">Relation :</label>
                     <select id="relationSelect" name="receiver" th:field="*{receiver}" required>
                         <option value=""></option>
                         <option th:each="relation : ${relations}"
@@ -185,14 +177,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="descriptionInput">Description :</label>
                     <input type="text" id="descriptionInput" name="description" th:field="*{description}" placeholder="Ex: Dîner restaurant">
                 </div>
 
                 <div class="form-group">
-                    <label for="amountInput">Montant (€) :</label>
                     <div class="amount-input">
-                        <input type="number" id="amountInput" name="amount" value="0.00" step="0.01" min="0" th:field="*{amount}">
+                        <input type="number" id="amountInput" name="amount" value="0.00" step="0.01" min="0" th:field="*{amount}" placeholder="Montant €">
                     </div>
                 </div>
 
@@ -208,13 +198,20 @@
         </div>
 
         <div class="transactions-section">
-            <h2>Transactions</h2>
+            <h2>Mes Transactions</h2>
+                
             <ul class="transaction-list">
-                <li class="transaction-item debit"
-                	th:each=" transaction : ${transactionList}">
-                    <span th:text="${transaction.receiver.username == principal.name ? transaction.sender?.username : transaction.receiver?.username}"></span> 
+            	<li class="transaction-item-info">
+                    <span class="bold">Relations</span>
+                    <span class="bold">Description</span>
+                    <span class="bold">Montant</span>
+                </li>
+                <li th:each=" transaction : ${transactionList}"
+                	th:class="${transaction.receiver.username == currentUserName ? 'transaction-item credit' : 'transaction-item debit'}">
+                	
+                    <span th:text="${transaction.receiver.username == currentUserName ? transaction.sender?.username : transaction.receiver?.username}"></span>
                     <span th:text="${transaction.description}"></span>
-                    <span th:text="${transaction.amount}" class="amount"></span>
+                    <span th:text="${transaction.receiver.username == currentUserName ? '+' : '-'} + ${transaction.amount} + ' €'" class="amount"></span>
                 </li>
             </ul>
         </div>

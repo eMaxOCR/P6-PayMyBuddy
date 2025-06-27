@@ -1,5 +1,7 @@
 package com.openclassrooms.payMyBuddy.model;
 
+import java.math.BigDecimal;
+
 import org.hibernate.annotations.DynamicUpdate;
 
 import jakarta.persistence.Column;
@@ -37,6 +39,6 @@ public class Transaction {
 	private String description;
 	
 	@Column(name = "amount")
-	private Double amount; //TODO BigDecimal
+	private BigDecimal amount; //TODO BigDecimal
 	
 }

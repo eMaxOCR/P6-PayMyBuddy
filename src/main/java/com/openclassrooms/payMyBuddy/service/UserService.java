@@ -1,5 +1,7 @@
 package com.openclassrooms.payMyBuddy.service;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -81,24 +83,29 @@ public class UserService {
 	 * Add relation/contact into database.
 	 * @return User
 	 * */
-	public Boolean addContactByEmail(String mail) {
-		User currentUser = getCurrentUser();
-		if (currentUser == null) {
-		    throw new IllegalStateException("Aucun utilisateur actuellement connecté.");
-		}
+	public HashMap<String, String> addContactByEmail(String mail) {
 		
+		User currentUser = getCurrentUser();					//Get current user information
+		HashMap<String, String> returnInfo = new HashMap<>();	//Setup hash map that contain the result
+		returnInfo.put("error", "Une erreur est survenue");
 		Optional<User> contactToAdd = getByEmailAddress(mail);	//Searching for user to add by he's email address.
+		
+		if (contactToAdd.isEmpty()) {
+			returnInfo.put("error", "Il n'existe pas d'utilisateur avec cette adresse mail.");
+		    return returnInfo;
+		}
+					
 	 	User contact = contactToAdd.get();
 	    if (currentUser.getEmail().equals(contact.getEmail())) {
-	        throw new IllegalArgumentException("Un utilisateur ne peut pas s'ajouter lui-même.");
-	    }
-	    
-	    if (currentUser.addContact(contactToAdd)) {
+	    	returnInfo.put("error", "Il n'est pas possible de s'ajouter.");
+		    return returnInfo;
+	    }else if (currentUser.addContact(contactToAdd)) {
 	        userRepository.save(currentUser);
-	        return true;
+	        returnInfo.put("success", "Relation ajoutée");
+		    return returnInfo;
 	    }
 	    
-	    return false;
+	    return returnInfo;
 
 	}
 	
@@ -159,13 +166,14 @@ public class UserService {
 		newUser=user;
 		newUser.setRole("USER");
 		newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+		add(newUser); //TODO essayer avec la cascade.
 		
 		Account newAccount = new Account();
 		newAccount.setUser(newUser);
-		newAccount.setBalance(0.0);
+		newAccount.setBalance(new BigDecimal(0));
 		accountService.addAccount(newAccount);
-		
 		add(newUser);
+		
 		return newUser;	
 	}
 	

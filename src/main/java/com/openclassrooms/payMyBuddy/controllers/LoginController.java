@@ -12,7 +12,10 @@ import com.openclassrooms.payMyBuddy.service.UserService;
 import jakarta.transaction.Transactional;
 
 import org.springframework.ui.Model;
+
+import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,7 +56,6 @@ public class LoginController {
 	 * */
 	@PostMapping("/signup")
 	public String register(@ModelAttribute User user, RedirectAttributes redirectAttributes) {
-		//TODO afficher les message d'erreur. (ça ne marche pas)
 		try {
             userService.register(user); 
             redirectAttributes.addFlashAttribute("success", "Inscription réussie ! Vous pouvez maintenant vous connecter.");
@@ -124,20 +126,13 @@ public class LoginController {
 	@PostMapping("/relation")
 	public String addRelation(@RequestParam("email") String email, RedirectAttributes redirectAttributes) {
 		try {
-			if(userService.getByEmailAddress(email).isEmpty()) {
-				redirectAttributes.addFlashAttribute("error", "Il n'existe pas d'utilisateur avec cette adresse.");
-				return "redirect:/relation";
-			}
-
-			userService.addContactByEmail(email);
-			redirectAttributes.addFlashAttribute("success", "Relation ajoutée avec succès.");
+			HashMap<String, String> relationStatus = userService.addContactByEmail(email);
+			Map.Entry<String,String> entry = relationStatus.entrySet().iterator().next();
+			redirectAttributes.addFlashAttribute(entry.getKey(), entry.getValue());
 			return "redirect:/relation";
 			
-		}catch(IllegalArgumentException | ConstraintViolationException e) {
-			redirectAttributes.addFlashAttribute("error", e.getMessage());
-			return "redirect:/relation";
 		}catch (Exception e) {
-			redirectAttributes.addFlashAttribute("error", "Une erreur inattendue est survenue." + e);
+			redirectAttributes.addFlashAttribute("error", "Une erreur inattendue est survenue : " + e);
 			return "redirect:/relation";
 		}
 	}
@@ -151,9 +146,9 @@ public class LoginController {
 		User currentUser = userService.getCurrentUser();
 		List<User> relations = currentUser.getContacts();
 		model.addAttribute("relations", relations);				//All user's contacts
-		model.addAttribute("transaction", new Transaction());	//Transaction model
-		model.addAttribute("transactionList", currentUser.getTransactions());									//All transactions
-		model.addAttribute("principal", principal);
+		model.addAttribute("transaction", new Transaction());	//Transaction model							
+		model.addAttribute("transactionList", transactionService.getAllTransactionsFromUser(currentUser));		//All transactions							//All transactions
+		model.addAttribute("currentUserName", currentUser.getUsername());
 		return "transfert";
 	}
 	
@@ -162,16 +157,21 @@ public class LoginController {
 	 * */
 	@PostMapping("/transfert")
 	public String createTransaction(@ModelAttribute Transaction transaction, RedirectAttributes redirectAttributes) {
+		//TODO service must check, return HASHMAP.
 			try {
-				if(transactionService.addTransaction(transaction)) {
-					redirectAttributes.addFlashAttribute("success", "💸 Paiement effectué ! 💸");
+				if(transaction.getAmount().compareTo(new BigDecimal(0)) == 0) {
+					redirectAttributes.addFlashAttribute("error", "Le montant doit être supérieur à 0");
 					return "redirect:/transfert"; 
+				}else if(transactionService.addTransaction(transaction)) {
+					redirectAttributes.addFlashAttribute("success", "💸 Paiement effectué 💸");
+					return "redirect:/transfert";
 				}else {
-					redirectAttributes.addFlashAttribute("error", "Vous n'avez pas assez d'argent.😫");
+					redirectAttributes.addFlashAttribute("error", "Vous n'avez pas assez d'argent 😫");
 					return "redirect:/transfert"; 
 				}
+				
 			}catch (Exception e) {
-				redirectAttributes.addFlashAttribute("error", "Une erreur est survenue 😫" + e.getMessage());
+				redirectAttributes.addFlashAttribute("error", "Une erreur est survenue : " + e.getMessage());
 				return "redirect:/transfert"; 
 			}
 
