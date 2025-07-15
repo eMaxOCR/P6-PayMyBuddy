@@ -17,167 +17,183 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
-	
+
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	@Autowired
 	private AccountService accountService;
-	
+
 	/**
 	 * Return all users.
+	 * 
 	 * @return List of User
 	 **/
-	public Iterable<User> getAll(){
+	public Iterable<User> getAll() {
 		return userRepository.findAll();
 	}
-	
+
 	/**
 	 * Return one user that match id.
+	 * 
 	 * @Return One user.
-	 * */
-	public Optional<User> getById(Integer id){
+	 */
+	public Optional<User> getById(Integer id) {
 		return userRepository.findById(id);
 	}
-	
+
 	/**
 	 * return User by it's "email" address.
-	 * */
+	 */
 	public Optional<User> getByEmailAddress(String email) {
 		return userRepository.findByEmail(email);
 	}
 
-	
 	/**
 	 * Get current user
-	 * */
+	 */
 	public User getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new IllegalStateException("Aucun utilisateur actuellement connecté.");
-        }
-		 String userEmail = authentication.getName();
-	        return userRepository.findByEmail(userEmail)
-	                .orElseThrow(() -> new IllegalStateException("Utilisateur non trouvé dans la base de données pour l'email: " + userEmail));
-	    
+		String userEmail = authentication.getName();
+		return userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalStateException(
+				"Utilisateur non trouvé dans la base de données pour l'email: " + userEmail));
+
 	}
-	
-	/**
-	 * Add user into database.
-	 * @return User
-	 * */
-	public User add(User user) {
-		return userRepository.save(user);
-	}
-	
+
 	/**
 	 * save user into database.
+	 * 
 	 * @return User
-	 * */
+	 */
 	public User save(User user) {
 		return userRepository.save(user);
 	}
-	
+
+	/**
+	 * Add USER into CONTACT
+	 * 
+	 * @param USER
+	 */
+	public Boolean addContact(Optional<User> contactOptional) {
+		if (contactOptional.isPresent()) { // Check if already exist
+			User currentUser = getCurrentUser();
+			User contactToAdd = contactOptional.get(); // Convert Optional<User> to User.
+			currentUser.getContacts().add(contactToAdd);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Add relation/contact into database.
+	 * 
 	 * @return User
-	 * */
+	 */
 	public HashMap<String, String> addContactByEmail(String mail) {
-		
-		User currentUser = getCurrentUser();					//Get current user information
-		HashMap<String, String> returnInfo = new HashMap<>();	//Setup hash map that contain the result
+
+		User currentUser = getCurrentUser(); // Get current user information
+		HashMap<String, String> returnInfo = new HashMap<>(); // Setup hash map that contain the result
 		returnInfo.put("error", "Une erreur est survenue");
-		Optional<User> contactToAdd = getByEmailAddress(mail);	//Searching for user to add by he's email address.
-		
+		Optional<User> contactToAdd = getByEmailAddress(mail); // Searching for user to add by he's email address.
+
 		if (contactToAdd.isEmpty()) {
 			returnInfo.put("error", "Il n'existe pas d'utilisateur avec cette adresse mail.");
-		    return returnInfo;
+			return returnInfo;
 		}
-					
-	 	User contact = contactToAdd.get();
-	    if (currentUser.getEmail().equals(contact.getEmail())) {
-	    	returnInfo.put("error", "Il n'est pas possible de s'ajouter.");
-		    return returnInfo;
-	    }else if (currentUser.addContact(contactToAdd)) {
-	        userRepository.save(currentUser);
-	        returnInfo.put("success", "Relation ajoutée");
-		    return returnInfo;
-	    }
-	    
-	    return returnInfo;
+
+		User contact = contactToAdd.get();
+		if (currentUser.getEmail().equals(contact.getEmail())) {
+			returnInfo.put("error", "Il n'est pas possible de s'ajouter.");
+			return returnInfo;
+		} else if (addContact(contactToAdd)) {
+			userRepository.save(currentUser);
+			returnInfo.put("success", "Relation ajoutée");
+			return returnInfo;
+		}
+
+		return returnInfo;
 
 	}
-	
+
 	/**
 	 * Update current profile
-	 * */
-	public User updateProfile(User user) {
-		User currentUser = getCurrentUser();
+	 */
+	public HashMap<String, String> updateProfile(User user) {
+		String userEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // Get mail address from																				// connected user
+		Optional<User> existingUserOptional = getByEmailAddress(userEmail); // Get user information from address.
+		HashMap<String, String> returnInfo = new HashMap<>(); // Setup hash map that contain the result
+		returnInfo.put("error", "Une erreur est survenue");
+		
+		if (existingUserOptional.isEmpty()) {
+			returnInfo.put("error", "Utilisateur non trouvé");
+			return returnInfo;
+		} 
+		
+		User currentUser = existingUserOptional.get();
 		
 		String userName = user.getUsername();
-		if(userName != null) {
+		if (userName != null) {
 			currentUser.setUsername(userName);
 		}
-		
+
 		String email = user.getEmail();
-		if(email != null) {
+		if (email != null) {
 			currentUser.setEmail(email);
 		}
-		
+
 		String passeword = user.getPassword();
-		if(!passeword.isBlank()) {
+		if (!passeword.isBlank()) {
 			currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
 		}
+
+		userRepository.save(currentUser);
+		returnInfo.put("success", "Profil mis à jour");
+		return returnInfo;
 		
-		return userRepository.save(currentUser);
-		
+
 	}
-	
+
 	/**
 	 * Delete user from database.
-	 * */
+	 */
 	public void delete(Integer id) {
 		userRepository.deleteById(id);
 	}
-	
-	/**
-	 * Register new user with text
-	 * @param Username, Mail, Password 
-	 * @return userId
-	 * */
-	public Integer registerWithUsernameMailPassword(String username, String mail, String password) {
-		User newUser = new User();
-		newUser.setUsername(username);
-		newUser.setEmail(mail);
-		newUser.setRole("USER");
-		newUser.setPassword(passwordEncoder.encode(password));
-		return add(newUser).getId();		
-	}
-	
+
 	/**
 	 * Register new user
-	 * @param Username, Mail, Password 
+	 * 
+	 * @param Username, Mail, Password
 	 * @return userId
-	 * */
+	 */
 	@Transactional
-	public User register(User user) {	
-		User newUser = new User();
-		newUser=user;
-		newUser.setRole("USER");
-		newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-		add(newUser); //TODO essayer avec la cascade.
-		
-		Account newAccount = new Account();
-		newAccount.setUser(newUser);
-		newAccount.setBalance(new BigDecimal(0));
-		accountService.addAccount(newAccount);
-		add(newUser);
-		
-		return newUser;	
+	public HashMap<String, String> register(User user) {
+
+		HashMap<String, String> returnInfo = new HashMap<>(); // Setup hash map that contain the result
+		returnInfo.put("error", "Une erreur est survenue");
+
+		if (getByEmailAddress(user.getEmail()).isEmpty()) {
+			User newUser = new User();
+			newUser = user;
+			newUser.setRole("USER");
+			newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+			save(newUser);
+
+			Account newAccount = new Account();
+			newAccount.setUser(newUser);
+			newAccount.setBalance(new BigDecimal(0));
+			accountService.addAccount(newAccount);
+			save(newUser);
+
+			returnInfo.put("success", "Vous avez été enregistré avec succès 🫡");
+
+			return returnInfo;
+		} else {
+			returnInfo.put("error", "Addresse mail déjà utilisée");
+			return returnInfo;
+		}
 	}
-	
-	
-	
-	
+
 }

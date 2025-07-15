@@ -39,6 +39,6 @@ public class Transaction {
 	private String description;
 	
 	@Column(name = "amount")
-	private BigDecimal amount; //TODO BigDecimal
+	private BigDecimal amount;
 	
 }

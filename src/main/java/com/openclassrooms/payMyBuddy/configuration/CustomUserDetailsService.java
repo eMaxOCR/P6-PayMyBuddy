@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		);
 	}
 	
-	//TODO Create 
+	//TODO À quoi ça sert ? 
 	private List<GrantedAuthority> getGrantedAuthorities(String role) {
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role));

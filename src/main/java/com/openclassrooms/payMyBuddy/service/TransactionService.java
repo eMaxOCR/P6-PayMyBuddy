@@ -3,6 +3,7 @@ package com.openclassrooms.payMyBuddy.service;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,13 +19,20 @@ import jakarta.transaction.Transactional;
 @Service
 public class TransactionService {
 
-	@Autowired
 	private TransactionRepository transactionRepository;
-	@Autowired
 	private UserService userService;
-	@Autowired
-	@Value("${transaction.fee.percentage}")
 	private BigDecimal FEEPOURCENT;
+	
+	@Autowired
+	public TransactionService(
+			TransactionRepository transactionRepository,
+		    UserService userService,
+			@Value("${transaction.fee.percentage}") BigDecimal feePourcent){
+		this.transactionRepository = transactionRepository;
+		this.userService = userService;
+		this.FEEPOURCENT = feePourcent;
+	}
+	
 
 	/**
 	 * Return all transaction.
@@ -41,27 +49,32 @@ public class TransactionService {
 	public Iterable<Transaction> getAllTransactionsFromUser(User user){
 		return transactionRepository.findAllByUser(user);
 	}
-	
-	/**
-	 * Return one transaction that match id.
-	 * @Return One transaction.
-	 * */
-	public Optional<Transaction> getTransactionById(Integer id){
-		return transactionRepository.findById(id);
-	}
-	
+		
 	/**
 	 * Add transaction into database.
 	 * @return transaction
 	 * */
 	@Transactional															//Commits & Roll back
-	public Boolean addTransaction(Transaction transaction) {
+	public HashMap<String, String> addTransaction(Transaction transaction) {
 		User currentUser = userService.getCurrentUser();					//Get current user who made the transaction
 		BigDecimal userBalance = currentUser.getAccount().getBalance();		//eg. 10
 		BigDecimal transactionAmount = transaction.getAmount();				//eg. 10
-		BigDecimal feeAmount =  transactionAmount.multiply(FEEPOURCENT);	//eg. 10 * 0.005 = 0.05€		
+		HashMap<String, String> returnInfo = new HashMap<>();				//Setup hash map that contain the result
+		returnInfo.put("error", "Une erreur est survenue");					//Put default message
 		
-		if(	userBalance.compareTo(transactionAmount.add(feeAmount)) >= 0) {	//Check if current user account can handle transaction's amount with fee
+		if(transactionAmount == null) {										//Check if input is not null
+			returnInfo.put("error", "Vous devez renseigner un montant 🔼");
+			return returnInfo;
+		} 
+		
+		BigDecimal feeAmount =  transactionAmount.multiply(FEEPOURCENT);	//eg. 10 * 0.005 = 0.05€
+		
+		
+		if (transactionAmount.compareTo(BigDecimal.ZERO) == 0) {			//Check if amount is equal to 0
+			returnInfo.put("error", "Le montant doit être supérieur à 0€");
+			return returnInfo;
+
+		}else if(userBalance.compareTo(transactionAmount.add(feeAmount)) >= 0) {															//Check if current user account can handle transaction's amount with fee
 			transaction.setSender(currentUser);
 			
 			Account currentUserAccount = currentUser.getAccount();																			//Get current user Account.
@@ -75,12 +88,15 @@ public class TransactionService {
 				userService.save(receiverUser);																								//Save receiver User.
 				
 				transactionRepository.save(transaction);																					//Save transaction.
+			
+				returnInfo.put("success", "💸 Paiement effectué 💸");
 				
-				return true;
+				return returnInfo;
 			}
 		}
 		
-		return false;			
+		returnInfo.put("error", "Vous n'avez pas assez d'argent 😫");
+		return returnInfo;			
 	}
 	
 	/**

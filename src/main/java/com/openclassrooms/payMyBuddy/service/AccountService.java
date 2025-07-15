@@ -1,6 +1,5 @@
 package com.openclassrooms.payMyBuddy.service;
 
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.openclassrooms.payMyBuddy.model.Account;
@@ -18,14 +17,6 @@ public class AccountService {
 	 **/
 	public Iterable<Account> getAllAccounts(){
 		return accountRepository.findAll();
-	}
-	
-	/**
-	 * Return one account that match id.
-	 * @Return One account.
-	 * */
-	public Optional<Account> Account(Integer id){
-		return accountRepository.findById(id);
 	}
 	
 	/**

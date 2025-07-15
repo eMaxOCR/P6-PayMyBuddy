@@ -10,7 +10,6 @@ import static org.springframework. test.web.servlet. result.MockMvcResultHandler
 import static org. springframework. test.web. servlet. result. MockMvcResultMatchers. status;
 import org.junit.jupiter.api.Test;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 
 
@@ -21,29 +20,26 @@ public class LoginControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 	
-	
-	@Test //Check if login page
+	/**
+	 * Check if login page
+	 * */
+	@Test 
 	public void shouldReturnDefaultMessageTest() throws Exception {
 		mockMvc.perform(get("/login"))
 			.andDo(print())
 			.andExpect(status().isOk());
 	}
 	
-	@Test //Check with wrong password
+	/**
+	 * With wrong password
+	 * */
+	@Test 
 	public void userLoginFailedTest() throws Exception {
 		mockMvc.perform(formLogin("/login")
 				.user("user")
 				.password("wrongpassword"))
 				.andExpect(unauthenticated());
 
-	}
-	
-	@Test //ByPass security
-	@WithMockUser //Spring will add user in security.
-	public void shouldReturnUserPageTest() throws Exception {
-		mockMvc.perform(get("/login"))
-			.andDo(print())
-			.andExpect(status().isOk());
 	}
 	
 

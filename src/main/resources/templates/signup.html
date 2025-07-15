@@ -75,11 +75,11 @@
     <div class="signup-box">
         <h2>Pay My Buddy</h2>
 
-        <div th:if="${param.error}" class="error">
-            Une erreur est survenue lors de l'inscription.
+        <div th:if="${error}" class="error">
+            <span th:text="${error}"></span>
         </div>
-        <div th:if="${param.success}" class="success">
-            Inscription réussie ! Vous pouvez maintenant vous connecter.
+        <div th:if="${success}" class="success">
+            <span th:text="${success}"></span>
         </div>
 
         <form method="post" th:action="@{/signup}"> <label for="username">Nom d'utilisateur :</label>

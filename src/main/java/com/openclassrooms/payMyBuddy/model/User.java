@@ -70,19 +70,6 @@ public class User {
 		
 			)
 	private List<User> contacts = new ArrayList<>();
-	
-	/**
-	 * Add USER into CONTACT
-	 * @param USER
-	 * */
-	public Boolean addContact(Optional<User> contactOptional) {
-		if(contactOptional.isPresent()) {				//Check if already exist
-			User contactToAdd = contactOptional.get();	//Convert Optional<User> to User.
-			contacts.add(contactToAdd);					//Add USER into contact.
-			return true;
-		}else {
-			return false;
-		}
-	}	
+		
 	
 }
