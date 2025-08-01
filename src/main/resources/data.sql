@@ -16,7 +16,18 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Dumping data for table `account`
+-- Dumping data for table `user` -- DOIT ÊTRE INSÉRÉ EN PREMIER
+--
+
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES (1,'MaximeP','max@test.fr','$2a$10$3WNYju73.qhqJcR/O3D8Z.WrMew2ZO2NtSyz8RnIbC6WrtonMWo3y','ADMIN'),(27,'David','david@test.fr','$2a$10$xnlmzsHxRN8pLQJYiWq7oegRIDhrxghREbuN3Pl/dLP/WO/ZK4uHq','USER'),(28,'Caroline','caroline@test.fr','$2a$10$MSMf7PFp1hK33US2NuqF/eyedLkEE.t5ct/qrACeaIdwEivNTAmEG','USER');
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+--
+-- Dumping data for table `account` -- Inséré après `user`
 --
 
 LOCK TABLES `account` WRITE;
@@ -26,7 +37,7 @@ INSERT INTO `account` VALUES (1,1,'23.74'),(5,27,'124.85'),(6,28,'39.94');
 UNLOCK TABLES;
 
 --
--- Dumping data for table `contact`
+-- Dumping data for table `contact` -- Inséré après `user`
 --
 
 LOCK TABLES `contact` WRITE;
@@ -36,7 +47,7 @@ INSERT INTO `contact` VALUES (28,1),(1,27),(1,28);
 UNLOCK TABLES;
 
 --
--- Dumping data for table `transaction`
+-- Dumping data for table `transaction` -- Inséré après `user`
 --
 
 LOCK TABLES `transaction` WRITE;
@@ -45,22 +56,14 @@ INSERT INTO `transaction` VALUES (36,1,27,'Dîner',10),(37,1,28,'Manucure ',32.2
 /*!40000 ALTER TABLE `transaction` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `user`
---
 
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'MaximeP','max@test.fr','$2a$10$3WNYju73.qhqJcR/O3D8Z.WrMew2ZO2NtSyz8RnIbC6WrtonMWo3y','ADMIN'),(27,'David','david@test.fr','$2a$10$xnlmzsHxRN8pLQJYiWq7oegRIDhrxghREbuN3Pl/dLP/WO/ZK4uHq','USER'),(28,'Caroline','caroline@test.fr','$2a$10$MSMf7PFp1hK33US2NuqF/eyedLkEE.t5ct/qrACeaIdwEivNTAmEG','USER');
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 

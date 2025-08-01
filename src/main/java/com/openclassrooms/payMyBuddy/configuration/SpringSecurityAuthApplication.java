@@ -51,18 +51,6 @@ public class SpringSecurityAuthApplication {
 		return new BCryptPasswordEncoder();
 	}
 	
-//	@Bean
-//	public UserDetailsService users () {
-//		UserDetails user = User.builder()
-//			.username("user")
-//			.password(passwordEncoder().encode ("user") )
-//			.roles("USER").build ();
-//		UserDetails admin = User.builder()
-//			.username("admin")
-//			.password(passwordEncoder().encode ("admin") )
-//			.roles("USER", "ADMIN").build ();
-//		return new InMemoryUserDetailsManager (user, admin);
-//	}
 	
 	@Bean
 	//Manage authentication sources

@@ -1,101 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+		content="User's profil webpage that personal information can be modified.">
+	<link rel="stylesheet" th:href="@{/css/style.css}">
     <title>Modifier le Profil</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column; /* Changé pour permettre le header en haut et le contenu en dessous */
-            justify-content: flex-start; /* Aligne le contenu en haut */
-            align-items: center; /* Centre horizontalement */
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        /* Style pour le conteneur principal du header si besoin de le centrer ou de lui donner une largeur */
-        .header-container {
-            width: 100%; /* Le header prend toute la largeur */
-            /* Autres styles si nécessaire pour le header lui-même */
-        }
-
-        .profile-box {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 300px;
-            margin-top: 30px; /* Ajoute un espace entre le header et la boîte de profil */
-        }
-        
-        .account-box {
-            background-color: white;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 300px;
-            font-weight: bolder;
-            font-size: x-large;
-            margin-top: 50px; /* Ajoute un espace entre le header et la boîte de profil */
-        }
-        
-        .profile-box h2 {
-            margin-bottom: 20px;
-            color: #333;
-            background-color: orange;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        .form-group label {
-            flex-basis: 100px;
-            color: #555;
-            text-align: left;
-            margin-right: 10px;
-        }
-        .form-group input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .profile-box button {
-            background-color: orange;
-            color: white;
-            padding: 10px 40px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
-        }
-        .profile-box button:hover {
-            background-color: #0056b3;
-        }
-        .success {
-            color: green;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        .error {
-            color: red;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-    </style>
 </head>
+
 <body>
 
     <div class="header-container" th:insert="~{fragments/header :: common-header}"></div> 

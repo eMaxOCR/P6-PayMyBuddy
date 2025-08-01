@@ -3,73 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription Pay My Buddy</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .signup-box { /* Changé de login-box à signup-box */
-            background-color: white;
-            border: 1px solid black;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .signup-box h2 {
-            margin-bottom: 20px;
-            color: white;
-        }
-        .signup-box h2 {
-		    background-color: orange;
-		    padding: 10px;
-		    border-radius: 5px;
-		}
-        .signup-box label {
-            display: block;
-            margin-bottom: 8px;
-            text-align: left;
-            color: #555;
-        }
-        .signup-box input[type="text"],
-        .signup-box input[type="email"], /* Ajouté pour l'e-mail */
-        .signup-box input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .signup-box button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-        .signup-box button:hover {
-            background-color: #0056b3;
-        }
-        .error {
-            color: red;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        .success { /* Ajouté pour les messages de succès */
-            color: green;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-    </style>
+    <meta name="description"
+		content="Sihnup web page ">
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Inscription</title>
 </head>
 <body>
     <div class="signup-box">
