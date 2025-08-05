@@ -21,6 +21,7 @@ public class AccountService {
 	
 	/**
 	 * Add account into database.
+	 * @param Account
 	 * @return Account
 	 * */
 	public Account addAccount(Account account) {
@@ -29,6 +30,7 @@ public class AccountService {
 	
 	/**
 	 * Delete account from database.
+	 * @param User id
 	 * */
 	public void deleteAccount(Integer id) {
 		accountRepository.deleteById(id);

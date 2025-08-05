@@ -19,7 +19,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private UserRepository userRepository;
 	
 	@Override
-	//Request in DB to get user informations.
+	/**
+	 * Request in DB to get user informations.
+	 * Method in Spring Security that's used to retrieve user information from a data source (like a database) based on their username
+	 * */
 	public UserDetails loadUserByUsername(String mail) throws UsernameNotFoundException {
 		com.openclassrooms.payMyBuddy.model.User user = userRepository.findByEmail(mail)
 				.orElseThrow(() -> new UsernameNotFoundException("Aucun utilisateur n'a été trouvé avec cette adresse mail:" + mail));	//Find user from DB
@@ -31,7 +34,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 		);
 	}
 	
-	//TODO À quoi ça sert ? 
+	/**
+	 * Helper function that converts a user's role (e.g., "USER", "ADMIN") into a format that Spring Security can understand and use for authorization.
+	 * */
 	private List<GrantedAuthority> getGrantedAuthorities(String role) {
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role));

@@ -53,7 +53,9 @@ public class LoginController {
         }
 	}
 	
-	
+	/**
+	 * Access to login web page.
+	 * */
 	@GetMapping("/login")
 	public String login() {
 		return "login";
@@ -148,7 +150,6 @@ public class LoginController {
 			redirectAttributes.addFlashAttribute("error", "Une erreur est survenue : " + e.getMessage());
 			return "redirect:/transfert"; 
 		}
-
 	}
 	
 	/**

@@ -16,6 +16,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 	
 	/**
 	 * Searching User by it's "email" address.
+	 * @param email
 	 * */
 	public Optional<User> findByEmail(String email);
 	

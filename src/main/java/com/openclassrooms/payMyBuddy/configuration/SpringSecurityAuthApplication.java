@@ -22,7 +22,11 @@ public class SpringSecurityAuthApplication {
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
 	
-	@Bean //TODO infos
+	@Bean
+	/**
+	 * Configuration bean that defines the entire security behavior of your application.
+	 * It's like a director
+	 * */
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 		return http.authorizeHttpRequests(auth -> {
 			auth.requestMatchers("/admin").hasRole("ADMIN"); 	//Define admin and his role
@@ -32,7 +36,7 @@ public class SpringSecurityAuthApplication {
 		}).formLogin(form -> form
 					.loginPage("/login")						//Define custom web page connexion
 					.permitAll()								//All can see this page.
-					.defaultSuccessUrl("/transfert", true)	//Go to main web page when logged.
+					.defaultSuccessUrl("/transfert", true)		//Go to main web page when logged.
 					.failureUrl("/login?error=true")			//Go to error web page when error detected. 
 				)
 				.exceptionHandling(exceptions -> exceptions
@@ -42,18 +46,23 @@ public class SpringSecurityAuthApplication {
 			            .permitAll()
 			            .logoutSuccessUrl("/login?logout=true") // Redirige vers la page de connexion avec un paramètre de déconnexion après la déconnexion
 			        )
-				//.oauth2Login(Customizer.withDefaults())			//Setup OAuth.
+				//.oauth2Login(Customizer.withDefaults())		//Setup OAuth.
 				.build(); 										//Create login form page.
 	}
 	
-	@Bean //For encrypt password
+	@Bean
+	/**
+	 * Encrypt password
+	 * */
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 	
 	
 	@Bean
-	//Manage authentication sources
+	/**
+	 * Manage authentication sources
+	 * */
 	public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder) throws Exception {
 	    AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
 	authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(bCryptPasswordEncoder);

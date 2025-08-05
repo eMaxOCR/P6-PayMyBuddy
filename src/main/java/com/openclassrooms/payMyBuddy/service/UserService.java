@@ -27,7 +27,6 @@ public class UserService {
 
 	/**
 	 * Return all users.
-	 * 
 	 * @return List of User
 	 **/
 	public Iterable<User> getAll() {
@@ -36,8 +35,8 @@ public class UserService {
 
 	/**
 	 * Return one user that match id.
-	 * 
-	 * @Return One user.
+	 * @param user id
+	 * @Return User.
 	 */
 	public Optional<User> getById(Integer id) {
 		return userRepository.findById(id);
@@ -45,6 +44,7 @@ public class UserService {
 
 	/**
 	 * return User by it's "email" address.
+	 * @return User
 	 */
 	public Optional<User> getByEmailAddress(String email) {
 		return userRepository.findByEmail(email);
@@ -52,6 +52,7 @@ public class UserService {
 
 	/**
 	 * Get current user
+	 * @return user
 	 */
 	public User getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -63,7 +64,7 @@ public class UserService {
 
 	/**
 	 * save user into database.
-	 * 
+	 * @param User
 	 * @return User
 	 */
 	public User save(User user) {
@@ -72,7 +73,7 @@ public class UserService {
 
 	/**
 	 * Add USER into CONTACT
-	 * 
+	 * @return Boolean
 	 * @param USER
 	 */
 	public Boolean addContact(Optional<User> contactOptional) {
@@ -88,7 +89,7 @@ public class UserService {
 
 	/**
 	 * Add relation/contact into database.
-	 * 
+	 * @param email
 	 * @return User
 	 */
 	public HashMap<String, String> addContactByEmail(String mail) {
@@ -119,6 +120,8 @@ public class UserService {
 
 	/**
 	 * Update current profile
+	 * @param user
+	 * @return HashMap
 	 */
 	public HashMap<String, String> updateProfile(User user) {
 		String userEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // Get mail address from																				// connected user
@@ -157,6 +160,7 @@ public class UserService {
 
 	/**
 	 * Delete user from database.
+	 * @param User id
 	 */
 	public void delete(Integer id) {
 		userRepository.deleteById(id);

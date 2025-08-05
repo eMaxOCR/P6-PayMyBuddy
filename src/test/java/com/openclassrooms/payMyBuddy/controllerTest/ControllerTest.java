@@ -95,10 +95,6 @@ public class ControllerTest {
 		verify(userService, times(1)).register(newUser);
 		verify(redirectAttributes, times(1)).addFlashAttribute("success", "Inscription réussie !");
 		assertEquals("redirect:/signup", viewName);
-//		mockMvc.perform(post("/signup")
-//				.flashAttr("user", newUser)						//Put user
-//				.with(csrf()))									//Put "CSRF" for Thymleaf
-//				.andExpect(flash().attributeExists("success")); //Expect success
 	}
 	
 	@Test
