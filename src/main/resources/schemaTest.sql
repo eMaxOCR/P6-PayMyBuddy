@@ -86,7 +86,7 @@ ENGINE = InnoDB;
 -- Table `paymybuddytest`.`Account`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `paymybuddytest`.`Account` (
-  `id` INT NOT NULL AUTO_INCREMENT, -- Correction : ajout de AUTO_INCREMENT
+  `id` INT NOT NULL AUTO_INCREMENT,
   `userId` INT NOT NULL,
   `balance` VARCHAR(45) NULL,
   PRIMARY KEY (`id`),
