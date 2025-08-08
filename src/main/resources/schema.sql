@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS `paymybuddy`.`Account` (
   `userId` INT NOT NULL,
   `balance` VARCHAR(45) NULL,
   PRIMARY KEY (`id`),
+  INDEX `userId [FK]_idx` (`userId` ASC) VISIBLE,
   CONSTRAINT `userId account [FK]`
     FOREIGN KEY (`userId`)
     REFERENCES `paymybuddy`.`User` (`id`)
